@@ -720,20 +720,7 @@
             "❌ Upload failed. Please try again.";
     }
 });
-
-  document.getElementById("careerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    careerStatus.textContent = "Submitting...";
-    try {
-      // TODO: replace with your endpoint (supports file uploads)
-      // await fetch("https://your-endpoint.com/careers", { method:"POST", body:new FormData(e.target) });
-      await new Promise(r => setTimeout(r, 750));
-      careerStatus.textContent = "✅ Application submitted successfully!";
-      e.target.reset();
-    } catch {
-      careerStatus.textContent = "❌ Submission failed. Try again.";
-    }
-  });
+  
 </script>
 
 </body>
