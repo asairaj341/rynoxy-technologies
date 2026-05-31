@@ -664,19 +664,62 @@
   const formStatus = document.getElementById("formStatus");
   const careerStatus = document.getElementById("careerStatus");
 
-  document.getElementById("contactForm").addEventListener("submit", async (e) => {
+  document.getElementById("careerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    formStatus.textContent = "Sending...";
+
+    careerStatus.textContent = "Uploading resume...";
+
     try {
-      // TODO: replace with your endpoint
-      // await fetch("https://your-endpoint.com/contact", { method:"POST", body:new FormData(e.target) });
-      await new Promise(r => setTimeout(r, 650));
-      formStatus.textContent = "✅ Message sent successfully!";
-      e.target.reset();
-    } catch {
-      formStatus.textContent = "❌ Failed to send. Try again.";
+        const form = e.target;
+
+        const resumeFile = form.resume.files[0];
+
+        if (!resumeFile) {
+            careerStatus.textContent = "Please select a resume.";
+            return;
+        }
+
+        const lambdaUrl =
+          "https://qicuemenxkaxmfdbdkaugohica0bxcdh.lambda-url.us-east-1.on.aws/";
+
+        const lambdaResponse = await fetch(lambdaUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                fileName: resumeFile.name,
+                fileType: resumeFile.type
+            })
+        });
+
+        const lambdaData = await lambdaResponse.json();
+
+        const body = JSON.parse(lambdaData.body);
+
+        const uploadResponse = await fetch(body.uploadUrl, {
+            method: "PUT",
+            headers: {
+                "Content-Type": resumeFile.type
+            },
+            body: resumeFile
+        });
+
+        if (!uploadResponse.ok) {
+            throw new Error("Upload failed");
+        }
+
+        careerStatus.textContent =
+            "✅ Resume uploaded successfully!";
+
+        form.reset();
+
+    } catch (err) {
+        console.error(err);
+        careerStatus.textContent =
+            "❌ Upload failed. Please try again.";
     }
-  });
+});
 
   document.getElementById("careerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
